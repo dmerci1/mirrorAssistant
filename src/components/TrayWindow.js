@@ -4,7 +4,7 @@ class TrayWindow extends Component {
   render() {
     return (
       <h3>Tray Window</h3>
-    )
+    );
   }
 }
 

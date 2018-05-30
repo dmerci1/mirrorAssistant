@@ -1,15 +1,11 @@
-import { app, BrowserWindow, Menu, MenuItem } from 'electron';
+import { app, BrowserWindow, Menu, MenuItem, Tray } from 'electron';
 import { enableLiveReload } from 'electron-compile';
-import windowManager from 'electron-window-manager';
 
-/*const { app, BrowserWindow, Menu } = electron;
-app.on('ready', () => {
-  new BrowserWindow({});
-});
-*/
+const path = require('path');
 
 let mainWindow;
 let trayWindow;
+let tray;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -23,6 +19,7 @@ const createWindow = async () => {
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -31,18 +28,43 @@ const createWindow = async () => {
 function createTrayWindow() {
   trayWindow = new BrowserWindow({
     width: 300,
-    height: 300,
-    title: 'tray window',
+    height: 500,
+    frame: false,
+    resizable: false,
+    show: false,
   });
   trayWindow.loadURL(`file://${__dirname}/tray.html`);
+
+  const iconName = process.platform === 'win32' ? 'windows-icon.png' : 'iconTemplate.png';
+const iconPath = path.join(__dirname, `./assets/${iconName}`);
+ tray = new Tray(iconPath);
+  tray.on('click', (event, bounds) => {
+    const { x, y } = bounds;
+    const { height, width } = trayWindow.getBounds();
+    if (trayWindow.isVisible()) {
+      trayWindow.hide();
+    } else {
+      const yPosition = process.platform === 'darwin' ? y : y - height;
+      trayWindow.setBounds({
+        x: x - width / 2,
+        y: yPosition,
+        height,
+        width
+      });
+      trayWindow.show();
+    }
+  });
 }
 
 const template = [
   {
-    label: 'File',
+    label: 'Options',
     submenu: [
       {
         role: 'toggledevtools',
+      },
+      {
+        role: 'reload',
       },
       {
         label: 'Show Icon',
