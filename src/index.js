@@ -16,7 +16,7 @@ const createWindow = async () => {
     width: 800,
     height: 600,
   });
-
+app.dock.hide();
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
 
@@ -34,10 +34,15 @@ function createTrayWindow() {
     show: false,
   });
   trayWindow.loadURL(`file://${__dirname}/tray.html`);
+  trayWindow.on('blur', () => {
+    trayWindow.hide();
+  });
 
   const iconName = process.platform === 'win32' ? 'windows-icon.png' : 'iconTemplate.png';
-const iconPath = path.join(__dirname, `./assets/${iconName}`);
- tray = new Tray(iconPath);
+  const iconPath = path.join(__dirname, `./assets/${iconName}`);
+  tray = new Tray(iconPath);
+  tray.setToolTip('Mirror Assistant');
+  //this.on('right-click', this.onRightClick.bind(this));
   tray.on('click', (event, bounds) => {
     const { x, y } = bounds;
     const { height, width } = trayWindow.getBounds();
@@ -45,16 +50,18 @@ const iconPath = path.join(__dirname, `./assets/${iconName}`);
       trayWindow.hide();
     } else {
       const yPosition = process.platform === 'darwin' ? y : y - height;
+      const xPosition = x - 150;
       trayWindow.setBounds({
-        x: x - width / 2,
+        x: xPosition,
         y: yPosition,
         height,
-        width
+        width,
       });
       trayWindow.show();
     }
   });
 }
+
 
 const template = [
   {
@@ -74,9 +81,11 @@ const template = [
   },
 ];
 
+
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 app.on('ready', createWindow);
+
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -87,6 +96,5 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
-
   }
 });
