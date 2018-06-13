@@ -11,19 +11,21 @@ const isDevMode = process.execPath.match(/[\\/]electron/);
 
 if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
 
-const createWindow = async () => {
+app.on('ready', () => {
+
+
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    skipTaskbar: true,
   });
-app.dock.hide();
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
+});
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-};
+
+
+
 
 function createTrayWindow() {
   trayWindow = new BrowserWindow({
@@ -32,16 +34,19 @@ function createTrayWindow() {
     frame: false,
     resizable: false,
     show: false,
+    skipTaskbar: true,
   });
   trayWindow.loadURL(`file://${__dirname}/tray.html`);
-  trayWindow.on('blur', () => {
-    trayWindow.hide();
-  });
+
 
   const iconName = process.platform === 'win32' ? 'windows-icon.png' : 'iconTemplate.png';
   const iconPath = path.join(__dirname, `./assets/${iconName}`);
   tray = new Tray(iconPath);
   tray.setToolTip('Mirror Assistant');
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Quit', click: () => app.quit() },
+  ]);
+  tray.setContextMenu(contextMenu);
   //this.on('right-click', this.onRightClick.bind(this));
   tray.on('click', (event, bounds) => {
     const { x, y } = bounds;
@@ -84,7 +89,6 @@ const template = [
 
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
-app.on('ready', createWindow);
 
 
 app.on('window-all-closed', () => {
@@ -95,6 +99,6 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow();
+    mainWindow();
   }
 });
