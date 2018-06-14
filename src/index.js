@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, MenuItem, Tray } from 'electron';
 import { enableLiveReload } from 'electron-compile';
+import Welcome from './components/Welcome';
 
 const path = require('path');
 

@@ -1,15 +1,19 @@
 import React from 'react';
-import BrowserWindow from 'react-electron-browser-window';
+import { Link, Route, Switch, BrowserRouter } from 'react-router-dom';
+
+import Auth from './Authentication/Auth';
+
+
+
+
 
 export default class App extends React.Component {
 
   render() {
     return (
-      <div>
-      <BrowserWindow title="Hello, World!" visible={true} />
-
-      <h1>Sup!!</h1>
-      </div>
+      <BrowserRouter>
+        <Auth />
+      </BrowserRouter>
     );
   }
 }
